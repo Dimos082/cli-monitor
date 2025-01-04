@@ -4,6 +4,7 @@
 
 *Because repetitive tasks shouldn't be boring...*
 
+**Unittests status for Win/Lin/Mac environments:** [![Python Multi-OS Tests](https://github.com/Dimos082/cli-monitor/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Dimos082/cli-monitor/actions/workflows/test.yml) 
 
 <details>
   <summary>📖 Table of Contents</summary>
@@ -14,15 +15,12 @@
 - [Example Commands](#example-commands)
 - [Arguments Overview](#arguments-overview)
 - [Contributing](#contributing)
-- [Issues & Feature Requests](#issues--feature-requests)
 - [License](#license)
 </details>
 
 ## Overview
 
 CLI Monitor is designed to help automate command execution, log outputs, and monitor for specific patterns using **regex**. If a match is found, the tool can execute an additional command. It handles logging, error reporting, and summary generation with ease.
-
-[🔼 Back to top](#cli-monitor-️)
 
 ## Features
 
@@ -32,9 +30,8 @@ CLI Monitor is designed to help automate command execution, log outputs, and mon
 - **Auto-Stop Timer**: Set a duration for execution or let it run indefinitely.
 - **Cross-Platform Compatibility**: Works on Windows, Linux, and macOS with Python 3.
 
-[🔼 Back to top](#cli-monitor-️)
 
-## Quick Start
+## ▶️ Quick Start
 
 1. **Download** [cli_monitor.py](https://raw.githubusercontent.com/Dimos082/cli-monitor/refs/heads/main/cli_monitor.py).
 2. **Run with an argument**:
@@ -58,7 +55,7 @@ Termination Reason: Manual termination by user
 
 [🔼 Back to top](#cli-monitor-️)
 
-## Example Commands
+## 🎛️ Example Commands
 
 ### Process Monitoring (babysit/watchdog mode)
 
@@ -80,7 +77,7 @@ python cli_monitor.py --command "echo Hello" --frequency 3
 
 Prints "Hello" every 3 seconds.
 
-### Log File Management
+###  Log File Management
 
 ```bash
 python cli_monitor.py --command "ls -la" --output-file "/tmp/mylog.txt" --max-log-size 50
@@ -101,7 +98,7 @@ Runs for 10 seconds, searching for "error" or "fail" and executing an alert comm
 
 [🔼 Back to top](#cli-monitor-️)
 
-## Arguments Overview
+## 💬 Arguments Overview
 
 | Argument         | Required? | Default | Description |
 |-----------------|:---------:|--------:|-------------|
@@ -117,7 +114,7 @@ Runs for 10 seconds, searching for "error" or "fail" and executing an alert comm
 
 ## 🛠️ Contributing
 
-We welcome contributions to make CLI Monitor even better! If you have an idea for an improvement, feel free to:
+We welcome contributions to make CLI Monitor even better! If you have an idea for an improvement or new [test cases](https://github.com/Dimos082/cli-monitor/tree/main/tests), feel free to:
 
 - **Fork the repository**
 - **Create a new feature branch**:
@@ -127,18 +124,13 @@ We welcome contributions to make CLI Monitor even better! If you have an idea fo
 - **Push your changes**: `git push origin feature/NewFeature`
 - **Open a pull request**  🐈‍⬛
 
-If you find a bug or have a feature request, check out our [open issues](https://github.com/Dimos082/cli-monitor/issues) or create a new one. Your feedback is valuable!
+If you find a bug or have a feature request, check out [open issues](https://github.com/Dimos082/cli-monitor/issues) or create a new one. Your feedback is valuable!
 
 If you find [cli_monitor.py](https://raw.githubusercontent.com/Dimos082/cli-monitor/refs/heads/main/cli_monitor.py) useful, consider giving it a ⭐ on GitHub!
 
-[🔼 Back to top](#cli-monitor-️)
-
-## Issues & Feature Requests
-
-Have an issue or an idea? Visit the [issue tracker](https://github.com/Dimos082/cli-monitor/issues) to report bugs, suggest enhancements, or discuss improvements.
 
 ## 📜 License
 
 This project is licensed under the Apache 2.0 - see the [LICENSE](https://github.com/Dimos082/cli-monitor?tab=Apache-2.0-1-ov-file) file for details.
 
-[🔼 Back to top](#cli-monitor-️)
+[🔼 Back to top](#cli-monitor-️) 
