@@ -13,8 +13,6 @@ jobs:
       matrix:
          include:
             - os: ubuntu-latest
-              python-version: "2.7"
-            - os: ubuntu-latest
               python-version: "3.13"
             - os: windows-latest
               python-version: "3.13"
