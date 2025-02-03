@@ -2,7 +2,7 @@
 
 > **CLI Monitor** is a *cross-platform* Python tool that repeatedly runs a command, captures its output, optionally logs it, and can even trigger a secondary command whenever a regex pattern is matched.
 
-*Because repetitive tasks shouldn't be boring...*
+*Because repetitive tasks should be automated...*
 
 **Unittests status for Win/Lin/Mac environments:** [![Python Multi-OS Tests](https://github.com/Dimos082/cli-monitor/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Dimos082/cli-monitor/actions/workflows/test.yml) 
 
@@ -18,11 +18,11 @@
 - [License](#license)
 </details>
 
-## Overview
+## Overview <a id="overview"></a>
 
 CLI Monitor is designed to help automate command execution, log outputs, and monitor for specific patterns using **regex**. If a match is found, the tool can execute an additional command. It handles logging, error reporting, and summary generation with ease.
 
-## Features
+## Features <a id="features"></a>
 
 - **Flexible Command Execution**: Run any CLI command at a chosen frequency.
 - **Pattern Matching with Regex**: Detect specific output patterns and trigger follow-up actions.
@@ -31,7 +31,7 @@ CLI Monitor is designed to help automate command execution, log outputs, and mon
 - **Cross-Platform Compatibility**: Works on Windows, Linux, and macOS with Python 3.
 
 
-## ▶️ Quick Start
+## ▶️ Quick Start <a id="quick-start"></a>
 
 1. **Download** [cli_monitor.py](https://raw.githubusercontent.com/Dimos082/cli-monitor/refs/heads/main/cli_monitor.py).
 2. **Run with an argument**:
@@ -55,7 +55,7 @@ Termination Reason: Manual termination by user
 
 [🔼 Back to top](#cli-monitor-️)
 
-## 🎛️ Example Commands
+## 🎛️ Example Commands <a id="example-commands"></a>
 
 ### Process Monitoring (babysit/watchdog mode)
 
@@ -98,7 +98,7 @@ Runs for 10 seconds, searching for "error" or "fail" and executing an alert comm
 
 [🔼 Back to top](#cli-monitor-️)
 
-## 💬 Arguments Overview
+## 💬 Arguments Overview <a id="arguments-overview"></a>
 
 | Argument         | Required? | Default | Description |
 |-----------------|:---------:|--------:|-------------|
@@ -112,24 +112,31 @@ Runs for 10 seconds, searching for "error" or "fail" and executing an alert comm
 
 [🔼 Back to top](#cli-monitor-️)
 
-## 🛠️ Contributing
+## 🛠️ Contributing <a id="contributing"></a>
 
-We welcome contributions to make CLI Monitor even better! If you have an idea for an improvement or new [test cases](https://github.com/Dimos082/cli-monitor/tree/main/tests), feel free to:
+I welcome contributions to make CLI Monitor even better! If you have an idea for an improvement or new [test cases](https://github.com/Dimos082/cli-monitor/tree/main/tests), feel free to:
 
 - **Fork the repository**
 - **Create a new feature branch**:
   `git checkout -b feature/NewFeature`
 - **Make your changes and commit**:
-  `git commit -m "Added NewFeature`
+  `git commit -m "Added NewFeature"`
 - **Push your changes**: `git push origin feature/NewFeature`
 - **Open a pull request**  🐈‍⬛
+
+### Observer Design Pattern
+Internally, cli_monitor.py uses an [Observer design pattern](https://refactoring.guru/design-patterns/observer/python/example) to keep modules loosely coupled:
+
+The controller (subject) runs commands, logs output, and notifies other modules (observers) like the RegexMonitor, ErrorHandler, and LoggerModule about data or events.
+This structure makes the code more maintainable and extensible.
+To add a new “observer” (e.g., a custom notification module), simply attach it to the flow in the controller without modifying existing logic significantly.
 
 If you find a bug or have a feature request, check out [open issues](https://github.com/Dimos082/cli-monitor/issues) or create a new one. Your feedback is valuable!
 
 If you find [cli_monitor.py](https://raw.githubusercontent.com/Dimos082/cli-monitor/refs/heads/main/cli_monitor.py) useful, consider giving it a ⭐ on GitHub!
 
 
-## 📜 License
+## 📜 License <a id="license"></a>
 
 This project is licensed under the Apache 2.0 - see the [LICENSE](https://github.com/Dimos082/cli-monitor?tab=Apache-2.0-1-ov-file) file for details.
 
