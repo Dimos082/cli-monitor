@@ -11,17 +11,16 @@ jobs:
     needs: test  # Wait for test jobs to finish first
 
     steps:
-      - name: Download Merged Test Results
+      - name: Download All Test Results
         uses: actions/download-artifact@v4
         with:
-          name: ALL_TEST_RESULTS
           path: test-results  # Store all test result files here
 
-      - name: Aggregate Test Results
-        id: aggregate_tests
+      - name: Merge Test Results
+        id: merge_tests
         run: |
           FAILED_TESTS=0
-          for file in test-results/*; do
+          for file in test-results/*/test_result_*; do
             TEST_STATUS=$(cat "$file")
             if [[ "$TEST_STATUS" == "failure" ]]; then
               FAILED_TESTS=$((FAILED_TESTS + 1))
