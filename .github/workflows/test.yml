@@ -35,11 +35,11 @@ jobs:
 
       - name: Store Test Result in Environment
         run: |
-          echo "TESTS_PASSED=${{ job.status }}" >> test_result.txt
+          echo "TESTS_PASSED=${{ job.status }}" > test_result_${{ matrix.os }}_${{ matrix.python-version }}.txt
 
-      - name: Upload Test Result Artifact
+      - name: Upload Unique Test Result Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TESTS_PASSED
-          path: test_result.txt
-          retention-days: 1  # Keep the artifact for 1 day
+          name: TESTS_PASSED_${{ matrix.os }}_${{ matrix.python-version }}
+          path: test_result_${{ matrix.os }}_${{ matrix.python-version }}.txt
+          retention-days: 1
