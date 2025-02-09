@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Test Results
+      - name: Download Test Result Artifact
         uses: actions/download-artifact@v4
         with:
           name: TESTS_PASSED
-          path: $GITHUB_ENV
+          path: .  # Current directory
+
+      - name: Read Test Result
+        id: read_test_result
+        run: echo "TESTS_PASSED=$(cat test_result.txt)" >> $GITHUB_ENV
 
       - name: Read Commit Message
         id: commit_msg
