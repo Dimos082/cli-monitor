@@ -8,11 +8,13 @@ on:
 jobs:
   check-tests:
     runs-on: ubuntu-latest
+    needs: test  # Wait for test jobs to finish first
 
     steps:
-      - name: Download All Test Results
+      - name: Download Merged Test Results
         uses: actions/download-artifact@v4
         with:
+          name: ALL_TEST_RESULTS
           path: test-results  # Store all test result files here
 
       - name: Aggregate Test Results
@@ -32,10 +34,10 @@ jobs:
         id: commit_msg
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
-      - name: Skip Release if Tests Failed (Unless Forced)
-        if: env.TESTS_PASSED == 'failure' && !contains(env.COMMIT_MSG, 'FORCE-RELEASE')
+      - name: Skip Release if Any Test Failed (Unless Forced)
+        if: env.TOTAL_FAILED_TESTS != '0' && !contains(env.COMMIT_MSG, 'FORCE-RELEASE')
         run: |
-          echo "Tests failed. Skipping release."
+          echo "Tests failed ($TOTAL_FAILED_TESTS jobs failed). Skipping release."
           exit 1
 
   versioning:
