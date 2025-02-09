@@ -1,0 +1,64 @@
+name: Versioning & Release
+
+on:
+  push:
+    branches:
+      - main  # Only auto-increment when committing to main
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Read Current Version
+        id: get_version
+        run: echo "CURRENT_VERSION=$(grep '__version__' cli_monitor.py | cut -d'=' -f2 | tr -d ' \"')" >> $GITHUB_ENV
+
+      - name: Determine Version Increment
+        id: version_bump
+        run: |
+          CURRENT_VERSION=${{ env.CURRENT_VERSION }}
+          MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
+          MINOR=$(echo $CURRENT_VERSION | cut -d. -f2)
+          PATCH=$(echo $CURRENT_VERSION | cut -d. -f3)
+
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          if [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          elif [[ "$COMMIT_MSG" == *"PATCH"* ]]; then
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "Version updated to $NEW_VERSION"
+
+      - name: Update Version in `cli_monitor.py`
+        run: sed -i "s/^__version__ = .*/__version__ = \"${{ env.NEW_VERSION }}\"/" cli_monitor.py
+
+      - name: Commit & Push Version Update
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git add cli_monitor.py
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+          git push
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.NEW_VERSION }}
+          name: Release v${{ env.NEW_VERSION }}
+          body: "Automated release for version ${{ env.NEW_VERSION }}"
+          draft: false
+          prerelease: false
+          files: cli_monitor.py
