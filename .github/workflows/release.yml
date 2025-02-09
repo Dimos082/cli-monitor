@@ -102,8 +102,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/Dimos082/cli-monitor.git
+          echo "DEBUG: Remote URLs before push"
+          git remote -v
           git add cli_monitor.py
           git commit -m "chore: bump version to ${{ env.NEW_VERSION }}" || echo "No changes to commit"
+          echo "DEBUG: Checking authentication"
+          git fetch origin
+          echo "DEBUG: Pushing changes"
           git push origin main
 
       - name: Create GitHub Release
