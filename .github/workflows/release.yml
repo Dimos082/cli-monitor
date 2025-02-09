@@ -51,7 +51,7 @@ jobs:
       - name: Read Current Version
         id: get_version
         run: |
-          VERSION=$(grep -m 1 '^__version__ =' cli_monitor.py | cut -d'=' -f2 | tr -d ' "')
+          VERSION=$(grep -m 1 '^__version__ =' cli_monitor.py | awk -F'=' '{print $2}' | sed 's/[^0-9.]//g')
           echo "CURRENT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Determine Version Increment
