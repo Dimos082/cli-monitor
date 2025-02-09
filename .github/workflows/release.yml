@@ -10,15 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Test Result Artifact
+      - name: Download All Test Results
         uses: actions/download-artifact@v4
         with:
-          name: TESTS_PASSED
-          path: .  # Current directory
+          path: test-results  # Store all test result files here
 
-      - name: Read Test Result
-        id: read_test_result
-        run: echo "TESTS_PASSED=$(cat test_result.txt)" >> $GITHUB_ENV
+      - name: Aggregate Test Results
+        id: aggregate_tests
+        run: |
+          FAILED_TESTS=0
+          for file in test-results/*; do
+            TEST_STATUS=$(cat "$file")
+            if [[ "$TEST_STATUS" == "failure" ]]; then
+              FAILED_TESTS=$((FAILED_TESTS + 1))
+            fi
+          done
+
+          echo "TOTAL_FAILED_TESTS=$FAILED_TESTS" >> $GITHUB_ENV
 
       - name: Read Commit Message
         id: commit_msg
