@@ -91,6 +91,10 @@ jobs:
       - name: Update Version in `cli_monitor.py`
         run: sed -i "s/^__version__ = .*/__version__ = \"${{ env.NEW_VERSION }}\"/" cli_monitor.py
 
+      - name: Debug GitHub Authentication
+        run: |
+          git remote -v
+
       - name: Commit & Push Version Update
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -101,10 +105,6 @@ jobs:
           git add cli_monitor.py
           git commit -m "chore: bump version to ${{ env.NEW_VERSION }}" || echo "No changes to commit"
           git push origin main
-
-      - name: Debug GitHub Authentication
-        run: |
-          git remote -v
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
