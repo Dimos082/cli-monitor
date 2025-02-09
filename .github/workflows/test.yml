@@ -33,6 +33,13 @@ jobs:
           python -m unittest discover -s tests
         continue-on-error: false  # Stop on failure
 
-      - name: Store Test Results
-        if: always()
-        run: echo "TESTS_PASSED=${{ job.status }}" >> $GITHUB_ENV
+      - name: Store Test Result in Environment
+        run: |
+          echo "TESTS_PASSED=${{ job.status }}" >> test_result.txt
+
+      - name: Upload Test Result Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TESTS_PASSED
+          path: test_result.txt
+          retention-days: 1  # Keep the artifact for 1 day
