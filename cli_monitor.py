@@ -4,7 +4,7 @@ import os, sys, time, subprocess, argparse, re, platform
 from datetime import datetime
 # A script that runs a command at a specified frequency and optionally triggers another command based on regex matches
 # ReadMe: https://github.com/Dimos082/cli-monitor/
-__version__ = "0.9"  # Updated automatically by GitHub Actions, check the repo for the latest
+__version__ = "0.9.0"
 # Constants:
 MIN_FREQUENCY = 0.1          # Minimum allowed frequency (seconds)
 MAX_FREQUENCY = 100000       # Maximum allowed frequency (seconds)
