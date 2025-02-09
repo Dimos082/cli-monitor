@@ -6,34 +6,31 @@ on:
       - main
 
 jobs:
-  pre-checks:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Validate Workflow Trigger
-        run: echo "Starting the release workflow..."
-
   check-tests:
     runs-on: ubuntu-latest
-    needs: pre-checks  # ✅ Now this job depends on pre-checks instead of nothing
+    needs: test  # Ensure all test jobs finish first
 
     steps:
       - name: Download All Test Results
         uses: actions/download-artifact@v4
         with:
-          path: test-results  # ✅ Store test results here
+          path: test-results  # Store all downloaded test result files here
 
-      - name: Aggregate Test Results
+      - name: Merge Test Results
         id: aggregate_tests
         run: |
           FAILED_TESTS=0
-          for file in test-results/*/test_result_*; do
-            TEST_STATUS=$(cat "$file")
-            if [[ "$TEST_STATUS" == "failure" ]]; then
-              FAILED_TESTS=$((FAILED_TESTS + 1))
-            fi
-          done
+          if [ -d "test-results" ]; then
+            for file in test-results/*/test_result_*; do
+              TEST_STATUS=$(cat "$file")
+              if [[ "$TEST_STATUS" == "failure" ]]; then
+                FAILED_TESTS=$((FAILED_TESTS + 1))
+              fi
+            done
+          fi
 
           echo "TOTAL_FAILED_TESTS=$FAILED_TESTS" >> $GITHUB_ENV
+          echo "Failed tests: $FAILED_TESTS"
 
       - name: Read Commit Message
         id: commit_msg
@@ -48,7 +45,7 @@ jobs:
   versioning:
     needs: check-tests
     runs-on: ubuntu-latest
-    if: success()  # Only runs if check-tests job passes
+    if: success()  # Only runs if all tests passed
 
     steps:
       - name: Checkout Repository

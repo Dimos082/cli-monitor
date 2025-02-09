@@ -33,12 +33,12 @@ jobs:
           python -m unittest discover -s tests
         continue-on-error: false  # Stop on failure
 
-      - name: Store Test Result in Environment
+      - name: Store Test Result in File
         run: |
           mkdir -p test-results
-          echo "TESTS_PASSED=${{ job.status }}" > test-results/test_result_${{ matrix.os }}_${{ matrix.python-version }}.txt
+          echo "${{ job.status }}" > test-results/test_result_${{ matrix.os }}_${{ matrix.python-version }}.txt
 
-      - name: Upload Unique Test Results Artifact
+      - name: Upload Unique Test Result Artifact
         uses: actions/upload-artifact@v4
         with:
           name: TEST_RESULT_${{ matrix.os }}_${{ matrix.python-version }}
