@@ -6,17 +6,23 @@ on:
       - main
 
 jobs:
+  pre-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Workflow Trigger
+        run: echo "Starting the release workflow..."
+
   check-tests:
     runs-on: ubuntu-latest
-    needs: test  # Ensure all test jobs finish first
+    needs: pre-checks
 
     steps:
       - name: Download All Test Results
         uses: actions/download-artifact@v4
         with:
-          path: test-results  # Store all downloaded test result files here
+          path: test-results  # Store test results here
 
-      - name: Merge Test Results
+      - name: Aggregate Test Results
         id: aggregate_tests
         run: |
           FAILED_TESTS=0
