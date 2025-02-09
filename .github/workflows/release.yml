@@ -3,11 +3,33 @@ name: Versioning & Release
 on:
   push:
     branches:
-      - main  # Only auto-increment when committing to main
+      - main
 
 jobs:
-  versioning:
+  check-tests:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Test Results
+        uses: actions/download-artifact@v4
+        with:
+          name: TESTS_PASSED
+          path: $GITHUB_ENV
+
+      - name: Read Commit Message
+        id: commit_msg
+        run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
+      - name: Skip Release if Tests Failed (Unless Forced)
+        if: env.TESTS_PASSED == 'failure' && !contains(env.COMMIT_MSG, 'FORCE-RELEASE')
+        run: |
+          echo "Tests failed. Skipping release."
+          exit 1
+
+  versioning:
+    needs: check-tests
+    runs-on: ubuntu-latest
+    if: success()  # Only runs if check-tests job passes
 
     steps:
       - name: Checkout Repository
@@ -16,7 +38,7 @@ jobs:
       - name: Read Current Version
         id: get_version
         run: |
-          VERSION=$(grep '^__version__ =' cli_monitor.py | cut -d '"' -f2) 
+          VERSION=$(grep '^__version__ =' cli_monitor.py | cut -d '"' -f2)
           echo "CURRENT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Determine Version Increment
@@ -48,12 +70,14 @@ jobs:
         run: sed -i "s/^__version__ = .*/__version__ = \"${{ env.NEW_VERSION }}\"/" cli_monitor.py
 
       - name: Commit & Push Version Update
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@users.noreply.github.com"
           git add cli_monitor.py
           git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
-          git push
+          git push https://Dimos082:${GH_PAT}@github.com/Dimos082/cli-monitor.git
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
