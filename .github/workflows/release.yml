@@ -6,18 +6,24 @@ on:
       - main
 
 jobs:
+  pre-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Workflow Trigger
+        run: echo "Starting the release workflow..."
+
   check-tests:
     runs-on: ubuntu-latest
-    needs: test  # Wait for test jobs to finish first
+    needs: pre-checks  # ✅ Now this job depends on pre-checks instead of nothing
 
     steps:
       - name: Download All Test Results
         uses: actions/download-artifact@v4
         with:
-          path: test-results  # Store all test result files here
+          path: test-results  # ✅ Store test results here
 
-      - name: Merge Test Results
-        id: merge_tests
+      - name: Aggregate Test Results
+        id: aggregate_tests
         run: |
           FAILED_TESTS=0
           for file in test-results/*/test_result_*; do
@@ -51,7 +57,7 @@ jobs:
       - name: Read Current Version
         id: get_version
         run: |
-          VERSION=$(grep -oP '^__version__ = "\K[^"]+' cli_monitor.py)
+          VERSION=$(grep -m 1 '^__version__ =' cli_monitor.py | awk -F'=' '{print $2}' | sed 's/[^0-9.]//g')
           echo "CURRENT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Determine Version Increment
