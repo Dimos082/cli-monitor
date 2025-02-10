@@ -14,16 +14,31 @@ class CLIArgumentParser:
     """Parses command-line arguments."""
     @staticmethod
     def parse_args():
-        p = argparse.ArgumentParser(description="CLI monitor with optional regex-based triggers.")
+        class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
+            pass
+        p = argparse.ArgumentParser(
+            description="CLI monitor with optional regex-based triggers.",
+            formatter_class=CustomFormatter
+        )
         p.add_argument("-v", "--version", action="version", version=f"CLI Monitor {__version__}")
-        p.add_argument("--command", required=True, help="Main command to run repeatedly.")
         p.add_argument("--output-file", help="Log file path; console only if omitted.")
         p.add_argument("--frequency", type=float, default=1.0, help="Seconds between each execution.")
-        p.add_argument("--max-log-size", type=int, default=1024, help="Max log file size in KB.")
+        p.add_argument("--max-log-size", type=int, default="1024", help="Max log file size in KB.")
         p.add_argument("--timer", type=float, default=0, help="Stop after N seconds (0 => infinite).")
         p.add_argument("--regex", help="Regex pattern to watch for in output.")
-        p.add_argument("--regex-execute", help="Command to run once per iteration if regex matches.")
-        return p.parse_args()
+        p.add_argument("--command", nargs="+", metavar=("CMD", "ARGS"), required=True,
+                       help="Main command to run.\nExample: --command ls -la /")
+        p.add_argument("--regex-execute", metavar=("CMD"), default=[],
+                       help="Command to execute when regex matches.\nExample: --regex-execute echo 'Match found'")
+        args = p.parse_args()
+        if args.max_log_size <= 0: # Ensure `--max-log-size` is valid
+            p.error("--max-log-size must be greater than 0 KB")
+        if "--max-log-size" in sys.argv and not args.output_file: # Ensure `--max-log-size` is ignored if `--output-file` is not set
+            print("Warning: --max-log-size is ignored since --output-file is not set.")
+        if not (MIN_FREQUENCY <= args.frequency <= MAX_FREQUENCY): # Ensure frequency is within the allowed range
+            p.error(f"Error: Frequency must be between {MIN_FREQUENCY} and {MAX_FREQUENCY}.")
+            exit(1)
+        return args
 
 class ErrorHandler:
     """Logs command/script errors and increments exception counts."""
@@ -227,9 +242,6 @@ class CliMonitorController:
 
 def main():
     cfg = CLIArgumentParser.parse_args()
-    if not (MIN_FREQUENCY <= cfg.frequency <= MAX_FREQUENCY): 
-        print(f"Error: Frequency must be between {MIN_FREQUENCY} and {MAX_FREQUENCY}.")
-        sys.exit(1)
     controller = CliMonitorController(cfg)
     controller.run()
 
