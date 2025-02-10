@@ -25,7 +25,7 @@ class TestCliMonitorBasic(unittest.TestCase):
         result = subprocess.run(cmd, capture_output=True, text=True)
         # Expecting a non-zero exit code due to frequency validation
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Error: Frequency must be between", result.stdout)
+        self.assertIn("Frequency must be between", result.stderr)
 
 if __name__ == "__main__":
     unittest.main()
