@@ -6,7 +6,35 @@ on:
       - main
 
 jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      RUN_TESTS: ${{ steps.check_changes.outputs.RUN_TESTS }}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Ensure we have commit history for comparison
+
+      - name: Check Modified Files
+        id: check_changes
+        run: |
+          git fetch origin main --depth=2
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+
+          # Check if cli_monitor.py or tests/ directory has been changed
+          if echo "$CHANGED_FILES" | grep -qE '^(cli_monitor.py|tests/)'; then
+            echo "RUN_TESTS=true" >> $GITHUB_ENV
+            echo "RUN_TESTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "RUN_TESTS=false" >> $GITHUB_ENV
+            echo "RUN_TESTS=false" >> $GITHUB_OUTPUT
+          fi
+
   test:
+    needs: check-changes
+    if: needs.check-changes.outputs.RUN_TESTS == 'true'  # Skip if no relevant changes
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
