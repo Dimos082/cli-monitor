@@ -16,7 +16,7 @@ class TestCliMonitorBasic(unittest.TestCase):
         """Verify 'echo Hello' runs without errors and prints 'Hello'."""
         cmd = [
             "python", "cli_monitor.py",
-            "--command", "echo Hello",
+            "--command", "echo", "Hello",
             "--timer", "2"
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
@@ -27,7 +27,7 @@ class TestCliMonitorBasic(unittest.TestCase):
         """Frequency outside allowed range should cause an error exit."""
         cmd = [
             "python", "cli_monitor.py",
-            "--command", "echo Hello",
+            "--command", "echo", "Hello",
             "--frequency", "999999999"  # way too large
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
@@ -49,7 +49,7 @@ class TestCliMonitorBasic(unittest.TestCase):
         """Ensure commands with quotes are properly handled."""
         cmd = [
             "python", "cli_monitor.py",
-            "--command", "echo Hello World",
+            "--command", "echo", "Hello World",
             "--timer", "2"
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
