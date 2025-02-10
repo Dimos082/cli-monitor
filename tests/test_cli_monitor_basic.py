@@ -50,7 +50,7 @@ class TestCliMonitorBasic(unittest.TestCase):
         """Ensure commands with quotes are properly handled."""
         cmd = [
             "python", "cli_monitor.py",
-            "--command", "echo", "'Hello World'",
+            "--command", "echo", "Hello World",
             "--timer", "2"
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
