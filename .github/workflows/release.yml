@@ -11,11 +11,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Ensure we have at least the last commit to compare
 
       - name: Check Modified Files
         id: check_changes
-        run: |
-          git fetch origin main
+        run: | # Ensure history exists for comparison
+          git fetch origin main --depth=2
           CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
 
           # Check if cli_monitor.py or tests/ directory has been changed
