@@ -8,11 +8,10 @@ class TestCliMonitorRegex(unittest.TestCase):
         """Should detect 'ERROR' and run the triggered command."""
         cmd = [
             "python", "cli_monitor.py",
-            "--regex", "ERROR",
-            "--timer", "2",
             "--command", "echo ERROR OCCURRED",
-            "--regex-execute", "echo 'Trigger ran!'"
-            
+            "--regex", "ERROR",
+            "--regex-execute", "echo 'Trigger ran!'",
+            "--timer", "2"
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
