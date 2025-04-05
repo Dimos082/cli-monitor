@@ -25,12 +25,12 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt || true  # Ignore if no requirements.txt exists
+          pip install pytest -r requirements.txt || true  # Ensure pytest is installed
 
       - name: Run Tests
         id: run_tests
         run: |
-          python -m unittest discover -s tests
+          pytest tests
         continue-on-error: false  # Stop on failure
 
       - name: Store Test Result in File
