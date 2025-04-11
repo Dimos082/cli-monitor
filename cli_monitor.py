@@ -38,7 +38,7 @@ class ErrorHandler:
         """Handles script-level errors."""
         t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         error_message = f"[{t}] CRITICAL ERROR: {script} stopped. code={code}, msg={msg}"
-        print(error_message, file=sys.stderr)  # Log to stderr
+        print(error_message, file=sys.stderr)
         sys.exit(1)  # Exit with a non-zero code
 
 class LoggerModule:
