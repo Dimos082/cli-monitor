@@ -37,7 +37,9 @@ class ErrorHandler:
     def handle_script_error(self, script, code, msg):
         """Handles script-level errors."""
         t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return f"[{t}] CRITICAL ERROR: {script} stopped. code={code}, msg={msg}"
+        error_message = f"[{t}] CRITICAL ERROR: {script} stopped. code={code}, msg={msg}"
+        print(error_message, file=sys.stderr)  # Log to stderr
+        sys.exit(1)  # Exit with a non-zero code
 
 class LoggerModule:
     """Logs to console and optional file; prunes if file exceeds size limit."""
@@ -124,6 +126,14 @@ class RegexMonitor:
         self.match_count = 0
         self._triggered = False  # Ensures only one triggered command per iteration
 
+        if self.pattern: # Validate regex pattern
+            try:
+                re.compile(self.pattern)
+            except re.error as e:
+                self.logger.log(f"CRITICAL ERROR: Invalid regex pattern: {e}")
+                print(f"CRITICAL ERROR: Invalid regex pattern: {e}", file=sys.stderr)
+                sys.exit(1)  # Exit with a non-zero code
+
     def start_new_iteration(self):
         """Resets the triggered-command status for the next iteration."""
         self._triggered = False
@@ -184,10 +194,7 @@ class CliMonitorController:
         except KeyboardInterrupt:
             self.summary.termination = "Manual termination by user"
         except Exception as e:
-            e_msg = self.error_handler.handle_script_error(os.path.basename(sys.argv[0]), -1, str(e))
-            self.logger.log(e_msg)
-            self.summary.exceptions_encountered += 1
-            self.summary.termination = "Unhandled exception"
+            self.error_handler.handle_script_error(os.path.basename(sys.argv[0]), -1, str(e))
         finally:
             self._finalize_summary()
 
