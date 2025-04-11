@@ -3,7 +3,7 @@
 import os, sys, time, subprocess, argparse, re, platform
 from datetime import datetime
 # Source: https://github.com/Dimos082/cli-monitor
-
+__version__ = "1.0.0"
 # Constants:
 MIN_FREQUENCY = 0.1          # Minimum allowed frequency (seconds)
 MAX_FREQUENCY = 100000       # Maximum allowed frequency (seconds)

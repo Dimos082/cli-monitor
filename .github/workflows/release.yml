@@ -6,10 +6,15 @@ on:
       - main
 
 jobs:
+  standalone-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo Standalone Job
+        run: echo "This is a standalone job to meet workflow requirements."
+
   check-tests:
     runs-on: ubuntu-latest
-    needs: test  # Ensure all test jobs finish first
-
+    needs: [standalone-job]
     steps:
       - name: Download All Test Results
         uses: actions/download-artifact@v4
