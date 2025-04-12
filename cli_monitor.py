@@ -3,8 +3,8 @@
 import os, sys, time, subprocess, argparse, re, platform
 from datetime import datetime
 # Source: https://github.com/Dimos082/cli-monitor
-__version__ = "1.0.0"
-# Constants
+__version__ = "1.0.1"
+# Constants:
 MIN_FREQUENCY = 0.1          # Minimum allowed frequency (seconds)
 MAX_FREQUENCY = 100000       # Maximum allowed frequency (seconds)
 EXECUTION_ERROR_CODE = -999  # Indicates an error in CommandExecutor
@@ -13,15 +13,40 @@ class CLIArgumentParser:
     """Parses command-line arguments."""
     @staticmethod
     def parse_args():
-        p = argparse.ArgumentParser(description="CLI monitor with optional regex-based triggers.")
-        p.add_argument("--command", required=True, help="Main command to run repeatedly.")
+        class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
+            pass
+
+        p = argparse.ArgumentParser(
+            description="CLI command executor with optional regex-based triggers.",
+            formatter_class=CustomFormatter,
+            epilog="""
+        Exit Codes:
+            0  Success
+            1  General error
+            2  Regex validation error
+        """
+        )
+        p.add_argument("-v", "--version", action="version", version=f"CLI Monitor {__version__}")
         p.add_argument("--output-file", help="Log file path; console only if omitted.")
         p.add_argument("--frequency", type=float, default=1.0, help="Seconds between each execution.")
         p.add_argument("--max-log-size", type=int, default=1024, help="Max log file size in KB.")
         p.add_argument("--timer", type=float, default=0, help="Stop after N seconds (0 => infinite).")
         p.add_argument("--regex", help="Regex pattern to watch for in output.")
-        p.add_argument("--regex-execute", help="Command to run once per iteration if regex matches.")
-        return p.parse_args()
+        p.add_argument("--command", nargs="+", metavar=("CMD", "ARGS"), required=True,
+                       help="Main command to run.\nExample: --command ls -la /")
+        p.add_argument("--regex-execute", metavar=("CMD"), default=[],
+                       help="Command to execute when regex matches.\nExample: --regex-execute echo 'Match found'")
+        
+        args = p.parse_args()
+        
+
+        if args.max_log_size <= 0: # Validation logic
+            p.error("--max-log-size must be greater than 0 KB")
+        if "--max-log-size" in sys.argv and not args.output_file:
+            print("Warning: --max-log-size is ignored since --output-file is not set.", file=sys.stderr)
+        if not (MIN_FREQUENCY <= args.frequency <= MAX_FREQUENCY):
+            p.error(f"Frequency must be between {MIN_FREQUENCY} and {MAX_FREQUENCY}.")
+        return args
 
 class ErrorHandler:
     """Logs command/script errors and increments exception counts."""
@@ -40,6 +65,13 @@ class ErrorHandler:
         error_message = f"[{t}] CRITICAL ERROR: {script} stopped. code={code}, msg={msg}"
         print(error_message, file=sys.stderr)
         sys.exit(1)  # Exit with a non-zero code
+
+    def handle_regex_error(self, error):
+        """Handles regex validation errors."""
+        t = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        error_message = f"[{t}] CRITICAL ERROR: {error}"
+        print(error_message, file=sys.stderr)
+        sys.exit(2)  # Exit with a specific code for regex errors
 
 class LoggerModule:
     """Logs to console and optional file; prunes if file exceeds size limit."""
@@ -125,14 +157,12 @@ class RegexMonitor:
         self.summary = summary
         self.match_count = 0
         self._triggered = False  # Ensures only one triggered command per iteration
-
-        if self.pattern: # Validate regex pattern
+ 
+        if self.pattern:  # Validate regex pattern
             try:
                 re.compile(self.pattern)
             except re.error as e:
-                self.logger.log(f"CRITICAL ERROR: Invalid regex pattern: {e}")
-                print(f"CRITICAL ERROR: Invalid regex pattern: {e}", file=sys.stderr)
-                sys.exit(1)  # Exit with a non-zero code
+                raise ValueError(f"Invalid regex pattern: {e}")
 
     def start_new_iteration(self):
         """Resets the triggered-command status for the next iteration."""
@@ -169,7 +199,13 @@ class CliMonitorController:
         self.logger = LoggerModule(cfg.output_file, cfg.max_log_size)
         self.error_handler = ErrorHandler()
         self.summary = SummaryModule()
-        self.monitor = RegexMonitor(cfg.regex, cfg.regex_execute, self.logger, self.summary)
+        try:
+            self.monitor = RegexMonitor(cfg.regex, cfg.regex_execute, self.logger, self.summary)
+        except ValueError as e:
+            self.error_handler.handle_regex_error(e)
+        except KeyboardInterrupt:
+            self.summary.termination = "Manual termination by user"
+            self.logger.log("INFO: Execution manually terminated by the user.")
 
     def run(self):
         """Runs the CLI monitor."""
@@ -232,9 +268,6 @@ class CliMonitorController:
 
 def main():
     cfg = CLIArgumentParser.parse_args()
-    if not (MIN_FREQUENCY <= cfg.frequency <= MAX_FREQUENCY): 
-        print(f"Error: Frequency must be between {MIN_FREQUENCY} and {MAX_FREQUENCY}.")
-        sys.exit(1)
     controller = CliMonitorController(cfg)
     controller.run()
 

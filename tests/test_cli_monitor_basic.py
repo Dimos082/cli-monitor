@@ -47,4 +47,4 @@ def test_invalid_frequency():
     result = subprocess.run(cmd, capture_output=True, text=True)
     # Expecting a non-zero exit code due to frequency validation
     assert result.returncode != 0
-    assert "Error: Frequency must be between" in result.stdout
+    assert "Frequency must be between" in result.stderr

@@ -14,6 +14,8 @@
 - [Quick Start](#quick-start)
 - [Example Commands](#example-commands)
 - [Arguments Overview](#arguments-overview)
+- [Testing](#testing)
+- [Exit Codes](#exit-codes)
 - [Automated Version Bumping, Testing and Release](#bumping)
 - [Contributing](#contributing)
 - [License](#license)
@@ -65,14 +67,15 @@ Termination Reason: Manual termination by user
 ### Process Monitoring (babysit/watchdog mode)
 
 ```bash
-python cli_monitor.py \
-  --command "pgrep my_app || echo NOT_FOUND" \
-  --frequency 10 \
-  --regex "NOT_FOUND" \
-  --regex-execute "bash /path/to/start_my_app.sh"
+python cli_monitor.py --command "pgrep my_app || echo NOT_FOUND" --frequency 10 --regex "NOT_FOUND" --regex-execute "bash /path/to/start_my_app.sh"
 ```
 
 This command checks every 10 seconds if `my_app` is running. If not, it triggers a script to restart it.
+
+Example for Windows:
+```bash
+python cli_monitor.py --command "tasklist | findstr notepad || echo NOT_FOUND" --frequency 5 --regex "NOT_FOUND" --regex-execute "start notepad.exe"
+```
 
 ### Repeating Echo
 
@@ -93,10 +96,7 @@ Keeps logs within 5 KB by trimming older entries.
 ### Detecting Errors in Logs
 
 ```bash
-python cli_monitor.py --command "cat /var/log/syslog" \
-  --regex "error|fail" \
-  --regex-execute "echo 'An issue was detected!'" \
-  --timer 10
+python cli_monitor.py --command "cat /var/log/syslog" --regex "error|fail" --regex-execute "echo 'An issue was detected!'" --timer 10
 ```
 
 Runs for 10 seconds, searching for "error" or "fail" and executing an alert command when found.
@@ -114,6 +114,28 @@ Runs for 10 seconds, searching for "error" or "fail" and executing an alert comm
 | `--timer`       | No        | 0       | Stops automatically after N seconds. 0 means run indefinitely. |
 | `--regex`       | No        | None    | A regex pattern to find in the command output. |
 | `--regex-execute` | No       | None    | A command to run once per iteration if the regex pattern is matched. |
+
+[🔼 Back to top](#cli-monitor-️)
+
+## 🧪 Testing <a id="testing"></a>
+
+This project uses `pytest` for unit testing. To run the tests locally, ensure you have [pytest](https://docs.pytest.org/en/6.2.x/getting-started.html) installed, and then execute:
+
+```bash
+pytest tests
+```
+
+This will run all the test cases in the `tests` directory and display the results.
+
+---
+
+## 🚦 Exit Codes <a id="exit-codes"></a>
+
+The script uses the following exit codes:
+
+- `0`: Success
+- `1`: General error
+- `2`: Regex validation error
 
 [🔼 Back to top](#cli-monitor-️)
 
@@ -144,7 +166,7 @@ git push origin main
 
 [🔼 Back to top](#cli-monitor-️)
 
-## 🛠️ Contributing <a id="contributing"></a>
+## 🤝 Contributing <a id="contributing"></a>
 
 If you find a bug or have a feature request, check out [open issues](https://github.com/Dimos082/cli-monitor/issues) or create a new one. Your feedback is valuable!
 
@@ -153,6 +175,8 @@ I welcome contributions to make CLI Monitor even better! If you have an idea for
 - **Fork the repository**
 - **Create a new feature branch**:
   `git checkout -b feature/NewFeature`
+- **Write your code and include tests if applicable**
+- **Run `pytest` to ensure all tests pass.**  
 - **Make your changes and commit with the version number incrementation**:
   `git commit -m "MINOR: Added feature XYZ"`
 - **Push your changes**: `git push origin feature/NewFeature`
