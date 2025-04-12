@@ -96,9 +96,13 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@users.noreply.github.com"
-          git add cli_monitor.py
-          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
-          git push https://Dimos082:${GH_PAT}@github.com/Dimos082/cli-monitor.git
+          if [ -n "$(git status --porcelain)" ]; then
+            git add cli_monitor.py
+            git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+            git push https://Dimos082:${GH_PAT}@github.com/Dimos082/cli-monitor.git
+          else
+            echo "No changes to commit. Skipping push."
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
